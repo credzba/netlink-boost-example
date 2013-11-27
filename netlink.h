@@ -3,18 +3,28 @@
 
 #include <boost/thread/thread.hpp>
 #include "MacAddr.h"
+#include "IPAddress.h"
 
 struct nlmsghdr;
 enum link_status { unknown=0, up, down };
 typedef void (*StatusFn)(const std::string& eth, link_status previousStatus, link_status newStatus, void* contextData);
 typedef void (*MacFn)(const std::string& eth, MacAddr previousMac, MacAddr newMac, void* contextData);
 
+struct  NeighborEntry {
+    IPAddress ip;
+    MacAddr mac;
+    int  nud;
+    bool router;
+};
+
+typedef std::list<NeighborEntry> NeighborList;
 
 class Netlink {
 public:
     Netlink();
     ~Netlink();
 
+    NeighborList getNeighborTable();
     void registerStatusCallback(StatusFn, void*);
     void registerMacCallback(MacFn, void*);
 
